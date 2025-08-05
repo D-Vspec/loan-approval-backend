@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from .utils import map_salutation, map_gender, map_marital_status, parse_date, parse_decimal, parse_int, map_other_repayment_source
+from .utils import map_salutation, map_gender, map_marital_status, parse_date, parse_decimal, parse_int, map_other_repayment_source, map_primary_repayment_source
 
 def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, PrimaryRepaymentSource, OtherRepaymentSource):
     def process_form_data():
@@ -72,7 +72,15 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             for source in primary_loan_repayment:
                 primary_source = PrimaryRepaymentSource()
                 primary_source.client_id = client.id
-                primary_source.source_type = source  # expects string matching enum value
+                
+                # Check if source is a dictionary (for "other" with comment)
+                if isinstance(source, dict):
+                    primary_source.source_type = map_primary_repayment_source(source.get('value', ''))
+                    primary_source.custom_description = source.get('comment', '')
+                else:
+                    primary_source.source_type = map_primary_repayment_source(source)  # map to enum value
+                    primary_source.custom_description = None
+                
                 db.session.add(primary_source)
 
             # Handle other loan repayment sources
@@ -80,7 +88,14 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             for source in other_loan_repayment:
                 other_source = OtherRepaymentSource()
                 other_source.client_id = client.id
-                other_source.source_type = map_other_repayment_source(source)  # map to enum value
+                
+                if isinstance(source, dict):
+                    other_source.source_type = map_other_repayment_source(source.get('value', ''))
+                    other_source.custom_description = source.get('comment', '')
+                else:
+                    other_source.source_type = map_other_repayment_source(source)  # map to enum value
+                    other_source.custom_description = None
+                
                 db.session.add(other_source)
             db.session.commit()
             return jsonify({

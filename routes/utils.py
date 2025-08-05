@@ -103,3 +103,14 @@ def map_other_repayment_source(source):
         'other': 'Other'
     }
     return mapping.get(source.strip().lower(), 'Other')
+
+def map_primary_repayment_source(source):
+    mapping = {
+        'agriculture': 'Agriculture',
+        'informal_business': 'InformalBusiness',
+        'stable_occupation': 'StableOccupation',
+        'permanent_stall': 'PermanentStall',
+        'registered_business': 'RegisteredBusiness',
+        'other': 'Other'
+    }
+    return mapping.get(source.strip().lower(), 'Other')
