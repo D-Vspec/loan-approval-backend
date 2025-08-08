@@ -11,6 +11,8 @@ from routes.process_form_data import process_form_data_route
 from routes.get_client_details import get_client_details_route
 from routes.get_all_clients import get_all_clients_route
 from routes.process_assessment_data import process_assessment_data_route
+from routes.check_client_verification import check_client_verification_route
+from routes.verify_client import verify_client_route
 
 client_bp = Blueprint('client', __name__)
 
@@ -44,6 +46,18 @@ client_bp.add_url_rule(
         ProgramBenefitsReceived, YearsInProgram, PastdueRatio
     ),
     methods=['POST', 'OPTIONS']
+)
+
+client_bp.add_url_rule(
+    '/client/<int:client_id>/verification-status',
+    view_func=check_client_verification_route(Client),
+    methods=['GET']
+)
+
+client_bp.add_url_rule(
+    '/client/<int:client_id>/verify',
+    view_func=verify_client_route(db, Client),
+    methods=['PUT', 'POST', 'OPTIONS']
 )
 
 
