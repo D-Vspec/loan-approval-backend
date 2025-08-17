@@ -5,7 +5,7 @@ from .enums import SalutationEnum, GenderEnum, MaritalStatusEnum
 
 class Client(db.Model):
     __tablename__ = 'client'
-    id = Column(Integer, primary_key=True)  # SERIAL
+    id = Column(Integer, primary_key=True)  
     salutation = Column(Enum(SalutationEnum))
     last_name = Column(String(100))
     first_name = Column(String(100))
@@ -24,6 +24,8 @@ class Client(db.Model):
     spouse_birthdate = Column(Date)
     work = Column(String(150))
     monthly_income = Column(DECIMAL(12, 2))
+    type_of_loan = Column(String(150))
+    loan_amount = Column(DECIMAL(12, 2))
     verified = Column(db.Boolean, default=False)
     addresses = relationship("AddressInformation", cascade="all, delete-orphan")
     beneficiaries = relationship("Beneficiaries", cascade="all, delete-orphan")

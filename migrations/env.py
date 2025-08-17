@@ -5,7 +5,7 @@ from flask import current_app
 
 from alembic import context
 
-from models import db
+from db import db
 target_metadata = db.metadata
 
 # this is the Alembic Config object, which provides

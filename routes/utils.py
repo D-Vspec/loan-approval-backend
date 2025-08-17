@@ -99,6 +99,7 @@ def map_other_repayment_source(source):
         'land_farming': 'LandFarming',
         'land_income': 'LandFarming',  # alias for land_farming
         'spouse_child_income': 'SpouseChildIncome',
+        'family_income': 'SpouseChildIncome',  # Map family_income to spouse_child_income
         'remittances': 'Remittances',
         'other': 'Other'
     }
@@ -111,6 +112,27 @@ def map_primary_repayment_source(source):
         'stable_occupation': 'StableOccupation',
         'permanent_stall': 'PermanentStall',
         'registered_business': 'RegisteredBusiness',
+        'regular_income': 'StableOccupation',  # Map regular_income to stable_occupation
         'other': 'Other'
     }
     return mapping.get(source.strip().lower(), 'Other')
+
+def map_income_expense_type(data_type):
+    """Map the income/expense data type based on the source"""
+    if 'business' in data_type.lower():
+        return 'Business'
+    elif 'household' in data_type.lower():
+        return 'Household'
+    else:
+        return 'Business'  # Default to business
+
+def map_frequency(frequency):
+    """Map frequency values to enum values"""
+    mapping = {
+        'daily': 'Daily',
+        'weekly': 'Weekly',
+        'semi_monthly': 'SemiMonthly',
+        'semimonthly': 'SemiMonthly',
+        'monthly': 'Monthly'
+    }
+    return mapping.get(frequency.strip().lower(), 'Daily')

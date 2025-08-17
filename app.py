@@ -12,6 +12,7 @@ CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Dv1234567@localhost/clientdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
 
 db.init_app(app)  
 migrate = Migrate(app, db)
@@ -25,7 +26,9 @@ def before_request():
         return jsonify(headers), 200
 
 from client_blueprint import client_bp
+from auth_blueprint import auth_bp
 app.register_blueprint(client_bp)
+app.register_blueprint(auth_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

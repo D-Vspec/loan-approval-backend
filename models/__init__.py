@@ -1,4 +1,3 @@
-# Import all models to make them available when importing from models package
 from .enums import *
 from .client import Client, AddressInformation, Beneficiaries, CoInsured
 from .financial import Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, CashFlowAnalysis
@@ -7,8 +6,8 @@ from .assessment import (
     PaymentHistory, LendingGroups, CenterStatusMembers, MeetingAttendance,
     ProgramBenefitsReceived, YearsInProgram, PastdueRatio
 )
+from .loan_approver import LoanApprover
 
-# Make all models available at package level
 __all__ = [
     # Enums
     'SalutationEnum', 'GenderEnum', 'MaritalStatusEnum', 'IncomeExpenseTypeEnum',
@@ -27,5 +26,8 @@ __all__ = [
     # Assessment models
     'Residency', 'FamilyAndToiletStatus', 'TimeInProgram', 'CenterCollectionRecord',
     'PaymentHistory', 'LendingGroups', 'CenterStatusMembers', 'MeetingAttendance',
-    'ProgramBenefitsReceived', 'YearsInProgram', 'PastdueRatio'
+    'ProgramBenefitsReceived', 'YearsInProgram', 'PastdueRatio',
+    
+    # Loan Approver models
+    'LoanApprover'
 ]

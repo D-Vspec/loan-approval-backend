@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
-from .utils import map_salutation, map_gender, map_marital_status, parse_date, parse_decimal, parse_int, map_other_repayment_source, map_primary_repayment_source
+from .utils import (map_salutation, map_gender, map_marital_status, parse_date, parse_decimal, parse_int, 
+                   map_other_repayment_source, map_primary_repayment_source, map_income_expense_type, map_frequency)
 
-def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, PrimaryRepaymentSource, OtherRepaymentSource):
+def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource):
     def process_form_data():
         try:
             json_data = request.get_json()
@@ -36,7 +37,11 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             client.spouse_birthdate = parse_date(data.get('spouseBirthDate'))
             client.work = data.get('spouseWork', '')
             client.monthly_income = parse_decimal(data.get('spouseMonthlyIncome'))
+            client.type_of_loan = data.get('typeOfLoan', '')
+            client.loan_amount = parse_decimal(data.get('loanAmount'))
+            
             print("Client spouse information:", client.spouse_name, client.spouse_birthdate)  # Debugging line
+            print("Loan information:", client.type_of_loan, client.loan_amount)  # Debugging line
             db.session.add(client)
             print("Client created:", client.id)  # Debugging line
             db.session.flush()
@@ -67,6 +72,62 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
                 co_insured.age = parse_int(co_insured_item.get('age'))
                 co_insured.relationship = co_insured_item.get('relationship', '')
                 db.session.add(co_insured)
+            
+            # Handle business income
+            business_income_data = data.get('businessIncome', [])
+            for income_item in business_income_data:
+                # Process each frequency type that has a value
+                for freq_key, freq_value in income_item.items():
+                    if freq_key != 'description' and freq_value and freq_value.strip():
+                        income = Income()
+                        income.client_id = client.id
+                        income.type = map_income_expense_type('business')
+                        income.frequency = map_frequency(freq_key)
+                        income.amount = parse_decimal(freq_value)
+                        income.description = income_item.get('description', '')
+                        db.session.add(income)
+            
+            # Handle household income
+            household_income_data = data.get('householdIncome', [])
+            for income_item in household_income_data:
+                # Process each frequency type that has a value
+                for freq_key, freq_value in income_item.items():
+                    if freq_key != 'description' and freq_value and freq_value.strip():
+                        income = Income()
+                        income.client_id = client.id
+                        income.type = map_income_expense_type('household')
+                        income.frequency = map_frequency(freq_key)
+                        income.amount = parse_decimal(freq_value)
+                        income.description = income_item.get('description', '')
+                        db.session.add(income)
+            
+            # Handle business expenses
+            business_expenses_data = data.get('businessExpenses', [])
+            for expense_item in business_expenses_data:
+                # Process each frequency type that has a value
+                for freq_key, freq_value in expense_item.items():
+                    if freq_key != 'description' and freq_value and freq_value.strip():
+                        expense = Expense()
+                        expense.client_id = client.id
+                        expense.type = map_income_expense_type('business')
+                        expense.frequency = map_frequency(freq_key)
+                        expense.amount = parse_decimal(freq_value)
+                        expense.description = expense_item.get('description', '')
+                        db.session.add(expense)
+            
+            # Handle household expenses
+            household_expenses_data = data.get('householdExpenses', [])
+            for expense_item in household_expenses_data:
+                # Process each frequency type that has a value
+                for freq_key, freq_value in expense_item.items():
+                    if freq_key != 'description' and freq_value and freq_value.strip():
+                        expense = Expense()
+                        expense.client_id = client.id
+                        expense.type = map_income_expense_type('household')
+                        expense.frequency = map_frequency(freq_key)
+                        expense.amount = parse_decimal(freq_value)
+                        expense.description = expense_item.get('description', '')
+                        db.session.add(expense)
             # Handle primary loan repayment sources
             primary_loan_repayment = data.get('primaryLoanRepayment', [])
             for source in primary_loan_repayment:
