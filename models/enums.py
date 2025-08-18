@@ -1,5 +1,10 @@
 from enum import Enum as PyEnum
 
+class ClientStatusEnum(PyEnum):
+    PENDING = 'pending'
+    VERIFIED = 'verified'
+    REJECTED = 'rejected'
+
 class SalutationEnum(PyEnum):
     Mr = 'Mr'
     Ms = 'Ms'

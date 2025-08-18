@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, DECIMAL, Enum
 from sqlalchemy.orm import relationship
 from db import db
-from .enums import SalutationEnum, GenderEnum, MaritalStatusEnum
+from .enums import SalutationEnum, GenderEnum, MaritalStatusEnum, ClientStatusEnum
 
 class Client(db.Model):
     __tablename__ = 'client'
@@ -26,7 +26,8 @@ class Client(db.Model):
     monthly_income = Column(DECIMAL(12, 2))
     type_of_loan = Column(String(150))
     loan_amount = Column(DECIMAL(12, 2))
-    verified = Column(db.Boolean, default=False)
+    verified = Column(db.Boolean, default=False)  # Keep for backward compatibility
+    status = Column(Enum(ClientStatusEnum), default=ClientStatusEnum.PENDING)
     addresses = relationship("AddressInformation", cascade="all, delete-orphan")
     beneficiaries = relationship("Beneficiaries", cascade="all, delete-orphan")
     co_insured = relationship("CoInsured", cascade="all, delete-orphan")

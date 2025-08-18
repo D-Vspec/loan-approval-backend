@@ -1,4 +1,5 @@
 from flask import jsonify
+from models.enums import ClientStatusEnum
 
 def check_client_verification_route(Client):
     def check_client_verification(client_id):
@@ -7,10 +8,19 @@ def check_client_verification_route(Client):
             if not client:
                 return jsonify({'error': 'Client not found'}), 404
             
+            # Get status message based on the client's current status
+            status_messages = {
+                ClientStatusEnum.PENDING: 'Client is pending verification',
+                ClientStatusEnum.VERIFIED: 'Client is verified',
+                ClientStatusEnum.REJECTED: 'Client has been rejected'
+            }
+            
             return jsonify({
                 'client_id': client_id,
-                'verified': client.verified,
-                'message': f'Client is {"verified" if client.verified else "not verified"}'
+                'status': client.status.value,
+                'verified': client.verified,  
+                'is_rejected': client.status == ClientStatusEnum.REJECTED,
+                'message': status_messages.get(client.status, 'Unknown status')
             }), 200
             
         except Exception as e:
