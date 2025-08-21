@@ -5,6 +5,7 @@ class ClientStatusEnum(PyEnum):
     VERIFIED = 'verified'
     REJECTED = 'rejected'
 
+
 class SalutationEnum(PyEnum):
     Mr = 'Mr'
     Ms = 'Ms'

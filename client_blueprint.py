@@ -15,6 +15,7 @@ from routes.check_client_verification import check_client_verification_route
 from routes.verify_client import verify_client_route
 from routes.reject_client import reject_client_route
 
+
 client_bp = Blueprint('client', __name__)
 
 client_bp.add_url_rule(

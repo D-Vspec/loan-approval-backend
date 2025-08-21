@@ -1,2 +1,4 @@
-.venv/
+venv/
 __pycache__/
+backend api/
+loan-predictor-ai-ui-loanType/
