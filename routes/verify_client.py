@@ -1,7 +1,6 @@
 from flask import jsonify
 from models.enums import ClientStatusEnum
 
-
 def verify_client_route(db, Client):
     def verify_client(client_id):
         try:
@@ -10,7 +9,6 @@ def verify_client_route(db, Client):
                 return jsonify({'error': 'Client not found'}), 404
             
             # Check if client is already verified
-
             if client.status == ClientStatusEnum.VERIFIED:
                 return jsonify({'error': 'Client is already verified'}), 400
             
@@ -21,18 +19,10 @@ def verify_client_route(db, Client):
             # Set status to VERIFIED
             client.status = ClientStatusEnum.VERIFIED
             client.verified = True  # Keep verified field in sync for backward compatibility
-
-            if client.verified:
-                return jsonify({'error': 'Client is already verified'}), 400
-            
-            # Set verified to True
-            client.verified = True
-
             db.session.commit()
             
             return jsonify({
                 'client_id': client_id,
-
                 'status': client.status.value,
                 'verified': True,
                 'message': 'Client has been successfully verified'
