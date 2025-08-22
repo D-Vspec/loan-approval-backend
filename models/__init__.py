@@ -7,8 +7,6 @@ from .assessment import (
     ProgramBenefitsReceived, YearsInProgram, PastdueRatio
 )
 from .loan_approver import LoanApprover
-from .token_usage import TokenUsage
-
 
 __all__ = [
     # Enums
@@ -31,9 +29,5 @@ __all__ = [
     'ProgramBenefitsReceived', 'YearsInProgram', 'PastdueRatio',
     
     # Loan Approver models
-    'LoanApprover',
-
-    # Token usage model
-    'TokenUsage'
-
+    'LoanApprover'
 ]
