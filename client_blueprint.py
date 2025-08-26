@@ -14,6 +14,7 @@ from routes.process_assessment_data import process_assessment_data_route
 from routes.check_client_verification import check_client_verification_route
 from routes.verify_client import verify_client_route
 from routes.reject_client import reject_client_route
+from routes.update_client_data import update_client_data_route
 
 
 client_bp = Blueprint('client', __name__)
@@ -66,6 +67,12 @@ client_bp.add_url_rule(
     '/client/<int:client_id>/reject',
     view_func=reject_client_route(db, Client),
     methods=['PUT', 'POST', 'OPTIONS']
+)
+
+client_bp.add_url_rule(
+    '/client/<int:client_id>/update',
+    view_func=update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource),
+    methods=['PUT', 'PATCH', 'OPTIONS']
 )
 
 
