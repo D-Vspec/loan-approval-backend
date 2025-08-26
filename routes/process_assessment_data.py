@@ -96,14 +96,6 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                 }
                 return mapping.get(str(value), 'AttendedOnceIn6Months')
             
-            def map_program_benefits(value):
-                mapping = {
-                    '1': 'NoBenefitsReceived',
-                    '2': 'ReceivedOnlyOneBenefit',
-                    '3': 'ReceivedTwoOrMoreBenefits'
-                }
-                return mapping.get(str(value), 'NoBenefitsReceived')
-            
             def map_years_in_program(value):
                 mapping = {
                     '1': 'TwoYearsOrLess',
@@ -124,6 +116,16 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                 }
                 return mapping.get(str(value), 'FourPercentOrHigher')
             
+            def map_program_benefits(benefit_name):
+                mapping = {
+                    'gyrt_life_insurance': 'GYRT_LIFE_INSURANCE',
+                    'cgl_loan_insurance': 'CGL_LOAN_INSURANCE',
+                    'bya_medical_assistance': 'BYA_MEDICAL_ASSISTANCE',
+                    'bya_educational_assistance': 'BYA_EDUCATIONAL_ASSISTANCE',
+                    'none': 'NONE'
+                }
+                return mapping.get(benefit_name)
+
             # Create new assessment records
             
             # Time in Program
@@ -175,12 +177,12 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                 db.session.add(meeting_attendance)
             
             # Program Benefits Received
-            if data.get('programBenefitsReceived'):
-                program_benefits = ProgramBenefitsReceived()
-                program_benefits.client_id = client_id
-                program_benefits.benefits_received = map_program_benefits(data['programBenefitsReceived'])
-                program_benefits.score = int(data['programBenefitsReceived'])
-                db.session.add(program_benefits)
+            if data.get('programBenefitsReceived') and isinstance(data['programBenefitsReceived'], list):
+                for benefit_name in data['programBenefitsReceived']:
+                    mapped_benefit = map_program_benefits(benefit_name)
+                    if mapped_benefit:
+                        program_benefit = ProgramBenefitsReceived(client_id=client_id, benefits_name=mapped_benefit)
+                        db.session.add(program_benefit)
             
             # Years in Program
             if data.get('yearsInProgram'):
@@ -205,7 +207,7 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
             total_score = 0
             for field in ['timeInProgram', 'centerCollectionRecord', 'paymentHistory', 
                          'numberOfLendingGroups', 'numberOfCenterMembers', 'attendanceToMeetings',
-                         'programBenefitsReceived', 'yearsInProgram', 'pastdueRatio']:
+                         'yearsInProgram', 'pastdueRatio']:
                 if data.get(field):
                     total_score += int(data[field])
             
@@ -222,7 +224,7 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                     'numberOfLendingGroups': int(data.get('numberOfLendingGroups', 0)),
                     'numberOfCenterMembers': int(data.get('numberOfCenterMembers', 0)),
                     'attendanceToMeetings': int(data.get('attendanceToMeetings', 0)),
-                    'programBenefitsReceived': int(data.get('programBenefitsReceived', 0)),
+                    'programBenefitsReceived': data.get('programBenefitsReceived', []),
                     'yearsInProgram': int(data.get('yearsInProgram', 0)),
                     'pastdueRatio': int(data.get('pastdueRatio', 0))
                 }

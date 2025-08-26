@@ -79,9 +79,7 @@ class ProgramBenefitsReceived(db.Model):
     __tablename__ = 'program_benefits_received'
     id = Column(Integer, primary_key=True)
     client_id = Column(Integer, ForeignKey('client.id', ondelete='CASCADE'))
-    benefits_received = Column(Enum(ProgramBenefitsEnum), nullable=False)
-    custom_description = Column(String(255))
-    score = Column(Integer, default=0)
+    benefits_name = Column(Enum(ProgramBenefitsEnum), nullable=False)
     
 class YearsInProgram(db.Model):
     __tablename__ = 'years_in_program'

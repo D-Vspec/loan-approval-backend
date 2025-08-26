@@ -133,9 +133,11 @@ class MeetingAttendanceEnum(PyEnum):
     Attended5OrMoreTimesIn6Months = 'attended_5_or_more_times_in_6_months'
 
 class ProgramBenefitsEnum(PyEnum):
-    NoBenefitsReceived = 'no_benefits_received'
-    ReceivedOnlyOneBenefit = 'received_only_one_benefit'
-    ReceivedTwoOrMoreBenefits = 'received_two_or_more_benefits'
+    GYRT_LIFE_INSURANCE = 'GYRT - Life Insurance'
+    CGL_LOAN_INSURANCE = 'CGL - Loan Insurance'
+    BYA_MEDICAL_ASSISTANCE = 'BYA Medical Assistance'
+    BYA_EDUCATIONAL_ASSISTANCE = 'BYA Educational Assistance'
+    NONE = 'None'
 
 class YearsInProgramEnum(PyEnum):
     TwoYearsOrLess = '2_years_or_less'
