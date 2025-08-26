@@ -21,7 +21,7 @@ client_bp = Blueprint('client', __name__)
 
 client_bp.add_url_rule(
     '/process_form_data',
-    view_func=process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource),
+    view_func=process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus),
     methods=['POST', 'OPTIONS']
 )
 client_bp.add_url_rule(

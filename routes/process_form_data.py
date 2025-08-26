@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from .utils import (map_salutation, map_gender, map_marital_status, parse_date, parse_decimal, parse_int, 
                    map_other_repayment_source, map_primary_repayment_source, map_income_expense_type, map_frequency)
+from models import LengthOfStayEnum, OwnershipTypeEnum, FamilyStatusEnum, ToiletStatusEnum
 
-def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource):
+def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus):
     def process_form_data():
         try:
             json_data = request.get_json()
@@ -158,6 +159,51 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
                     other_source.custom_description = None
                 
                 db.session.add(other_source)
+
+            # NEW: Handle residency (length of stay and ownership)
+            length_of_stay_val = data.get('lengthOfStay')
+            ownership_val = data.get('ownershipOfResidence')
+            if length_of_stay_val or ownership_val:
+                residency = Residency()
+                residency.client_id = client.id
+                if length_of_stay_val:
+                    try:
+                        residency.length_of_stay = LengthOfStayEnum(length_of_stay_val)
+                    except ValueError:
+                        residency.length_of_stay = LengthOfStayEnum.Other
+                    if length_of_stay_val == 'other':
+                        residency.length_of_stay_custom = data.get('lengthOfStayCustom', '')
+                if ownership_val:
+                    try:
+                        residency.ownership_type = OwnershipTypeEnum(ownership_val)
+                    except ValueError:
+                        residency.ownership_type = OwnershipTypeEnum.Other
+                    if ownership_val == 'other':
+                        residency.ownership_type_custom = data.get('ownershipOfResidenceCustom', '')
+                db.session.add(residency)
+
+            # NEW: Handle family and toilet status
+            family_status_val = data.get('familyStatus')
+            toilet_status_val = data.get('toiletStatus')
+            if family_status_val or toilet_status_val:
+                family_toilet = FamilyAndToiletStatus()
+                family_toilet.client_id = client.id
+                if family_status_val:
+                    try:
+                        family_toilet.family_status = FamilyStatusEnum(family_status_val)
+                    except ValueError:
+                        family_toilet.family_status = FamilyStatusEnum.Other
+                    if family_status_val == 'other':
+                        family_toilet.family_status_custom = data.get('familyStatusCustom', '')
+                if toilet_status_val:
+                    try:
+                        family_toilet.toilet_status = ToiletStatusEnum(toilet_status_val)
+                    except ValueError:
+                        family_toilet.toilet_status = ToiletStatusEnum.Other
+                    if toilet_status_val == 'other':
+                        family_toilet.toilet_status_custom = data.get('toiletStatusCustom', '')
+                db.session.add(family_toilet)
+
             db.session.commit()
             return jsonify({
                 'message': 'Client data processed successfully',
