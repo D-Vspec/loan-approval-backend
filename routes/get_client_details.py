@@ -52,6 +52,8 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
                     "spouseBirthDate": format_date_to_iso(client.spouse_birthdate),
                     "spouseWork": client.work or "",
                     "spouseMonthlyIncome": str(client.monthly_income) if client.monthly_income else "",
+                    "typeOfLoan": client.type_of_loan or "",
+                    "loanAmount": str(client.loan_amount) if client.loan_amount else "",
                     "verified": client.verified,
                     "streetAddress": address.street if address else "",
                     "barangay": address.barangay if address else "",
