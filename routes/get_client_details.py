@@ -21,6 +21,9 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
             cash_flow_analyses = CashFlowAnalysis.query.filter_by(client_id=client_id).all()
             residencies = Residency.query.filter_by(client_id=client_id).all()
             family_toilet_statuses = FamilyAndToiletStatus.query.filter_by(client_id=client_id).all()
+            # Pick first (latest inserted) entries for simple field mapping
+            residency_single = residencies[0] if residencies else None
+            family_toilet_single = family_toilet_statuses[0] if family_toilet_statuses else None
             time_in_programs = TimeInProgram.query.filter_by(client_id=client_id).all()
             collection_records = CenterCollectionRecord.query.filter_by(client_id=client_id).all()
             payment_histories = PaymentHistory.query.filter_by(client_id=client_id).all()
@@ -55,6 +58,15 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
                     "typeOfLoan": client.type_of_loan or "",
                     "loanAmount": str(client.loan_amount) if client.loan_amount else "",
                     "verified": client.verified,
+                    # Added single-value residency & family/toilet fields
+                    "lengthOfStay": residency_single.length_of_stay.value if residency_single and residency_single.length_of_stay else "",
+                    "lengthOfStayCustom": residency_single.length_of_stay_custom if residency_single and residency_single.length_of_stay_custom else "",
+                    "ownershipOfResidence": residency_single.ownership_type.value if residency_single and residency_single.ownership_type else "",
+                    "ownershipOfResidenceCustom": residency_single.ownership_type_custom if residency_single and residency_single.ownership_type_custom else "",
+                    "familyStatus": family_toilet_single.family_status.value if family_toilet_single and family_toilet_single.family_status else "",
+                    "familyStatusCustom": family_toilet_single.family_status_custom if family_toilet_single and family_toilet_single.family_status_custom else "",
+                    "toiletStatus": family_toilet_single.toilet_status.value if family_toilet_single and family_toilet_single.toilet_status else "",
+                    "toiletStatusCustom": family_toilet_single.toilet_status_custom if family_toilet_single and family_toilet_single.toilet_status_custom else "",
                     "streetAddress": address.street if address else "",
                     "barangay": address.barangay if address else "",
                     "cityMunicipality": address.city_municipality if address else "",
