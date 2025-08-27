@@ -3,8 +3,9 @@ from .utils import (
     map_salutation, map_gender, map_marital_status, parse_date, parse_decimal, parse_int,
     map_other_repayment_source, map_primary_repayment_source, map_income_expense_type, map_frequency
 )
+from models import LengthOfStayEnum, OwnershipTypeEnum, FamilyStatusEnum, ToiletStatusEnum
 
-def update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource):
+def update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus):
     def update_client_data(client_id):
         try:
             json_data = request.get_json()
@@ -37,22 +38,39 @@ def update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoIn
                 client.contact_number = data.get('contactNumber') or ''
             if 'numberOfDependents' in data:
                 client.no_of_dependents = parse_int(data.get('numberOfDependents'))
+            
             if 'maritalStatus' in data:
-                client.marital_status = map_marital_status(data.get('maritalStatus') or '')
+                old_marital_status = client.marital_status
+                new_marital_status_str = data.get('maritalStatus') or ''
+                new_marital_status = map_marital_status(new_marital_status_str)
+                
+                # If marital status changes from Married to something else, clear spouse info
+                if old_marital_status and 'Married' in str(old_marital_status) and new_marital_status_str.lower() != 'married':
+                    client.spouse_name = None
+                    client.spouse_birthdate = None
+                    client.work = None
+                    client.monthly_income = None
+
+                client.marital_status = new_marital_status
+
             if 'nationality' in data:
                 client.nationality = data.get('nationality') or ''
             if 'weight' in data:
                 client.weight = parse_decimal(data.get('weight'))
             if 'education' in data:
                 client.education = data.get('education') or ''
-            if 'spouseName' in data:
-                client.spouse_name = data.get('spouseName') or ''
-            if 'spouseBirthDate' in data:
-                client.spouse_birthdate = parse_date(data.get('spouseBirthDate'))
-            if 'spouseWork' in data:
-                client.work = data.get('spouseWork') or ''
-            if 'spouseMonthlyIncome' in data:
-                client.monthly_income = parse_decimal(data.get('spouseMonthlyIncome'))
+            
+            # Only update spouse info if client is married
+            if client.marital_status and 'Married' in str(client.marital_status):
+                if 'spouseName' in data:
+                    client.spouse_name = data.get('spouseName') or ''
+                if 'spouseBirthDate' in data:
+                    client.spouse_birthdate = parse_date(data.get('spouseBirthDate'))
+                if 'spouseWork' in data:
+                    client.work = data.get('spouseWork') or ''
+                if 'spouseMonthlyIncome' in data:
+                    client.monthly_income = parse_decimal(data.get('spouseMonthlyIncome'))
+
             if 'typeOfLoan' in data:
                 client.type_of_loan = data.get('typeOfLoan') or ''
             if 'loanAmount' in data:
@@ -173,6 +191,8 @@ def update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoIn
             if 'primaryLoanRepayment' in data:
                 PrimaryRepaymentSource.query.filter_by(client_id=client.id).delete()
                 primary_loan_repayment = data.get('primaryLoanRepayment') or []
+                if isinstance(primary_loan_repayment, str):
+                    primary_loan_repayment = [primary_loan_repayment]
                 for source in primary_loan_repayment:
                     ps = PrimaryRepaymentSource()
                     ps.client_id = client.id
@@ -188,6 +208,8 @@ def update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoIn
             if 'otherLoanRepayment' in data:
                 OtherRepaymentSource.query.filter_by(client_id=client.id).delete()
                 other_loan_repayment = data.get('otherLoanRepayment') or []
+                if isinstance(other_loan_repayment, str):
+                    other_loan_repayment = [other_loan_repayment]
                 for source in other_loan_repayment:
                     os = OtherRepaymentSource()
                     os.client_id = client.id
@@ -198,6 +220,72 @@ def update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoIn
                         os.source_type = map_other_repayment_source(source)
                         os.custom_description = None
                     db.session.add(os)
+
+            # Residency
+            if 'lengthOfStay' in data or 'ownershipOfResidence' in data:
+                residency = Residency.query.filter_by(client_id=client.id).first()
+                if not residency:
+                    residency = Residency(client_id=client.id)
+                    db.session.add(residency)
+                
+                if 'lengthOfStay' in data:
+                    length_of_stay_val = data['lengthOfStay']
+                    try:
+                        residency.length_of_stay = LengthOfStayEnum(length_of_stay_val)
+                        residency.length_of_stay_custom = None # Clear custom if a valid enum is provided
+                    except ValueError:
+                        residency.length_of_stay = LengthOfStayEnum.Other
+                        if length_of_stay_val != 'other':
+                            residency.length_of_stay_custom = length_of_stay_val
+                
+                if data.get('lengthOfStay') == 'other' and 'lengthOfStayCustom' in data:
+                    residency.length_of_stay_custom = data.get('lengthOfStayCustom', '')
+
+                if 'ownershipOfResidence' in data:
+                    ownership_val = data['ownershipOfResidence']
+                    try:
+                        residency.ownership_type = OwnershipTypeEnum(ownership_val)
+                        residency.ownership_type_custom = None # Clear custom if a valid enum is provided
+                    except ValueError:
+                        residency.ownership_type = OwnershipTypeEnum.Other
+                        if ownership_val != 'other':
+                            residency.ownership_type_custom = ownership_val
+                
+                if data.get('ownershipOfResidence') == 'other' and 'ownershipOfResidenceCustom' in data:
+                    residency.ownership_type_custom = data.get('ownershipOfResidenceCustom', '')
+
+            # Family and Toilet Status
+            if 'familyStatus' in data or 'toiletStatus' in data:
+                family_toilet = FamilyAndToiletStatus.query.filter_by(client_id=client.id).first()
+                if not family_toilet:
+                    family_toilet = FamilyAndToiletStatus(client_id=client.id)
+                    db.session.add(family_toilet)
+
+                if 'familyStatus' in data:
+                    family_status_val = data['familyStatus']
+                    try:
+                        family_toilet.family_status = FamilyStatusEnum(family_status_val)
+                        family_toilet.family_status_custom = None
+                    except ValueError:
+                        family_toilet.family_status = FamilyStatusEnum.Other
+                        if family_status_val != 'other':
+                            family_toilet.family_status_custom = family_status_val
+                
+                if data.get('familyStatus') == 'other' and 'familyStatusCustom' in data:
+                    family_toilet.family_status_custom = data.get('familyStatusCustom', '')
+
+                if 'toiletStatus' in data:
+                    toilet_status_val = data['toiletStatus']
+                    try:
+                        family_toilet.toilet_status = ToiletStatusEnum(toilet_status_val)
+                        family_toilet.toilet_status_custom = None
+                    except ValueError:
+                        family_toilet.toilet_status = ToiletStatusEnum.Other
+                        if toilet_status_val != 'other':
+                            family_toilet.toilet_status_custom = toilet_status_val
+
+                if data.get('toiletStatus') == 'other' and 'toiletStatusCustom' in data:
+                    family_toilet.toilet_status_custom = data.get('toiletStatusCustom', '')
 
             db.session.commit()
             return jsonify({'message': 'Client data updated successfully', 'client_id': client.id}), 200

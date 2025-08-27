@@ -71,7 +71,7 @@ client_bp.add_url_rule(
 
 client_bp.add_url_rule(
     '/client/<int:client_id>/update',
-    view_func=update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource),
+    view_func=update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus),
     methods=['PUT', 'PATCH', 'OPTIONS']
 )
 

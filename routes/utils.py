@@ -57,14 +57,18 @@ def parse_int(value):
         return None
 
 def reverse_map_salutation(salutation):
+    if hasattr(salutation, 'value'):
+        salutation = salutation.value
     mapping = {
-        'Mr.': 'mr',
-        'Ms.': 'ms',
+        'Mr': 'mr',
+        'Ms': 'ms',
         'Others': 'others'
     }
     return mapping.get(salutation, 'others')
 
 def reverse_map_gender(gender):
+    if hasattr(gender, 'value'):
+        gender = gender.value
     mapping = {
         'Male': 'male',
         'Female': 'female',
@@ -73,6 +77,8 @@ def reverse_map_gender(gender):
     return mapping.get(gender, 'other')
 
 def reverse_map_marital_status(status):
+    if hasattr(status, 'value'):
+        status = status.value
     mapping = {
         'Single': 'single',
         'Married': 'married',
