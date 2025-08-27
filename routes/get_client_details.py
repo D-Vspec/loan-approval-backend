@@ -46,7 +46,7 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
                     "spouseMonthlyIncome": str(client.monthly_income) if client.monthly_income else "",
                     "typeOfLoan": client.type_of_loan or "",
                     "loanAmount": str(client.loan_amount) if client.loan_amount else "",
-                    "verified": client.verified,
+                    "status": client.status.value if client.status else "",
                     # Added single-value residency & family/toilet fields
                     "lengthOfStay": residency_single.length_of_stay.value if residency_single and residency_single.length_of_stay else "",
                     "lengthOfStayCustom": residency_single.length_of_stay_custom if residency_single and residency_single.length_of_stay_custom else "",
