@@ -2,15 +2,11 @@ from flask import Blueprint
 from models import (
     Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense,
     PrimaryRepaymentSource, OtherRepaymentSource, CashFlowAnalysis, Residency,
-    FamilyAndToiletStatus, TimeInProgram, CenterCollectionRecord, PaymentHistory,
-    LendingGroups, CenterStatusMembers, MeetingAttendance, ProgramBenefitsReceived,
-    YearsInProgram, PastdueRatio
+    FamilyAndToiletStatus
 )
 from db import db
-from routes.process_form_data import process_form_data_route
 from routes.get_client_details import get_client_details_route
 from routes.get_all_clients import get_all_clients_route
-from routes.process_assessment_data import process_assessment_data_route
 from routes.check_client_verification import check_client_verification_route
 from routes.verify_client import verify_client_route
 from routes.reject_client import reject_client_route
@@ -20,18 +16,10 @@ from routes.update_client_data import update_client_data_route
 client_bp = Blueprint('client', __name__)
 
 client_bp.add_url_rule(
-    '/process_form_data',
-    view_func=process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus),
-    methods=['POST', 'OPTIONS']
-)
-client_bp.add_url_rule(
     '/client/<int:client_id>',
     view_func=get_client_details_route(
         Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense,
-        PrimaryRepaymentSource, OtherRepaymentSource, CashFlowAnalysis, Residency,
-        FamilyAndToiletStatus, TimeInProgram, CenterCollectionRecord, PaymentHistory,
-        LendingGroups, CenterStatusMembers, MeetingAttendance, ProgramBenefitsReceived,
-        YearsInProgram, PastdueRatio
+        PrimaryRepaymentSource, OtherRepaymentSource, CashFlowAnalysis, Residency, FamilyAndToiletStatus
     ),
     methods=['GET']
 )
@@ -42,18 +30,8 @@ client_bp.add_url_rule(
 )
 
 client_bp.add_url_rule(
-    '/process_assessment_data',
-    view_func=process_assessment_data_route(
-        db, Client, TimeInProgram, CenterCollectionRecord, PaymentHistory,
-        LendingGroups, CenterStatusMembers, MeetingAttendance, 
-        ProgramBenefitsReceived, YearsInProgram, PastdueRatio
-    ),
-    methods=['POST', 'OPTIONS']
-)
-
-client_bp.add_url_rule(
     '/client/<int:client_id>/verification-status',
-    view_func=check_client_verification_route(Client),
+    view_func=check_client_verification_route(Client, FamilyAndToiletStatus),
     methods=['GET']
 )
 

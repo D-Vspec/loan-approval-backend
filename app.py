@@ -27,10 +27,10 @@ def before_request():
 
 from client_blueprint import client_bp
 from auth_blueprint import auth_bp
+from assessment_blueprint import assessment_bp
 app.register_blueprint(client_bp)
 app.register_blueprint(auth_bp)
-
-
+app.register_blueprint(assessment_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

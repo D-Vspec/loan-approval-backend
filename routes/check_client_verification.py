@@ -1,7 +1,7 @@
 from flask import jsonify
 from models.enums import ClientStatusEnum
 
-def check_client_verification_route(Client):
+def check_client_verification_route(Client, FamilyAndToiletStatus):
     def check_client_verification(client_id):
         try:
             client = Client.query.get(client_id)
