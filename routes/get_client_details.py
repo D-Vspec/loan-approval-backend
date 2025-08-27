@@ -3,9 +3,7 @@ from .utils import reverse_map_salutation, reverse_map_gender, reverse_map_marit
 
 def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense,
                             PrimaryRepaymentSource, OtherRepaymentSource, CashFlowAnalysis, Residency,
-                            FamilyAndToiletStatus, TimeInProgram, CenterCollectionRecord, PaymentHistory,
-                            LendingGroups, CenterStatusMembers, MeetingAttendance, ProgramBenefitsReceived,
-                            YearsInProgram, PastdueRatio):
+                            FamilyAndToiletStatus):
     def get_client_details(client_id):
         try:
             client = Client.query.get(client_id)
@@ -24,15 +22,6 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
             # Pick first (latest inserted) entries for simple field mapping
             residency_single = residencies[0] if residencies else None
             family_toilet_single = family_toilet_statuses[0] if family_toilet_statuses else None
-            time_in_programs = TimeInProgram.query.filter_by(client_id=client_id).all()
-            collection_records = CenterCollectionRecord.query.filter_by(client_id=client_id).all()
-            payment_histories = PaymentHistory.query.filter_by(client_id=client_id).all()
-            lending_groups = LendingGroups.query.filter_by(client_id=client_id).all()
-            center_members = CenterStatusMembers.query.filter_by(client_id=client_id).all()
-            meeting_attendances = MeetingAttendance.query.filter_by(client_id=client_id).all()
-            program_benefits = ProgramBenefitsReceived.query.filter_by(client_id=client_id).all()
-            years_in_program = YearsInProgram.query.filter_by(client_id=client_id).all()
-            pastdue_ratios = PastdueRatio.query.filter_by(client_id=client_id).all()
             response_data = {
                 "submissionDate": format_date_to_iso(client.birthdate),
                 "formType": "Client Information Sheet",
@@ -152,78 +141,6 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
                             "score": status.score or 0
                         }
                         for status in family_toilet_statuses
-                    ],
-                    "timeInPrograms": [
-                        {
-                            "programCycle": program.program_cycle.value if program.program_cycle else "",
-                            "customDescription": program.custom_description or "",
-                            "score": program.score or 0
-                        }
-                        for program in time_in_programs
-                    ],
-                    "centerCollectionRecords": [
-                        {
-                            "collectionStatus": record.collection_status.value if record.collection_status else "",
-                            "customDescription": record.custom_description or "",
-                            "score": record.score or 0
-                        }
-                        for record in collection_records
-                    ],
-                    "paymentHistories": [
-                        {
-                            "paymentStatus": history.payment_status.value if history.payment_status else "",
-                            "customDescription": history.custom_description or "",
-                            "score": history.score or 0
-                        }
-                        for history in payment_histories
-                    ],
-                    "lendingGroups": [
-                        {
-                            "groupParticipation": group.group_participation.value if group.group_participation else "",
-                            "customDescription": group.custom_description or "",
-                            "score": group.score or 0
-                        }
-                        for group in lending_groups
-                    ],
-                    "centerStatusMembers": [
-                        {
-                            "memberCount": member.member_count.value if member.member_count else "",
-                            "customDescription": member.custom_description or "",
-                            "score": member.score or 0
-                        }
-                        for member in center_members
-                    ],
-                    "meetingAttendances": [
-                        {
-                            "attendanceFrequency": attendance.attendance_frequency.value if attendance.attendance_frequency else "",
-                            "customDescription": attendance.custom_description or "",
-                            "score": attendance.score or 0
-                        }
-                        for attendance in meeting_attendances
-                    ],
-                    "programBenefitsReceived": [
-                        {
-                            "benefitsReceived": benefit.benefits_received.value if benefit.benefits_received else "",
-                            "customDescription": benefit.custom_description or "",
-                            "score": benefit.score or 0
-                        }
-                        for benefit in program_benefits
-                    ],
-                    "yearsInProgram": [
-                        {
-                            "programDuration": years.program_duration.value if years.program_duration else "",
-                            "customDescription": years.custom_description or "",
-                            "score": years.score or 0
-                        }
-                        for years in years_in_program
-                    ],
-                    "pastdueRatios": [
-                        {
-                            "ratioCategory": ratio.ratio_category.value if ratio.ratio_category else "",
-                            "customDescription": ratio.custom_description or "",
-                            "score": ratio.score or 0
-                        }
-                        for ratio in pastdue_ratios
                     ]
                 }
             }
