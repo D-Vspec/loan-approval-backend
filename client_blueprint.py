@@ -11,6 +11,7 @@ from routes.check_client_verification import check_client_verification_route
 from routes.verify_client import verify_client_route
 from routes.reject_client import reject_client_route
 from routes.update_client_data import update_client_data_route
+from routes.process_form_data import process_form_data_route
 
 
 client_bp = Blueprint('client', __name__)
@@ -27,6 +28,12 @@ client_bp.add_url_rule(
     '/clients',
     view_func=get_all_clients_route(Client),
     methods=['GET']
+)
+
+client_bp.add_url_rule(
+    '/process_form_data',
+    view_func=process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus),
+    methods=['POST']
 )
 
 client_bp.add_url_rule(

@@ -26,6 +26,8 @@ class Client(db.Model):
     monthly_income = Column(DECIMAL(12, 2))
     type_of_loan = Column(String(150))
     loan_amount = Column(DECIMAL(12, 2))
+    existing = Column(db.Boolean, default=False)
+    CIF_number = Column(String(100), nullable=True)
 
     verified = Column(db.Boolean, default=False)  # Keep for backward compatibility
     status = Column(Enum(ClientStatusEnum), default=ClientStatusEnum.PENDING)

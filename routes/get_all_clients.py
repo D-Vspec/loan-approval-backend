@@ -8,7 +8,9 @@ def get_all_clients_route(Client):
                 Client.salutation,
                 Client.first_name,
                 Client.middle_name,
-                Client.last_name
+                Client.last_name,
+                Client.existing,
+                Client.CIF_number
             ).all()
             clients_list = []
             for client in clients:
@@ -28,7 +30,9 @@ def get_all_clients_route(Client):
                     "firstName": client.first_name or "",
                     "middleName": client.middle_name or "",
                     "lastName": client.last_name or "",
-                    "salutation": client.salutation.value if client.salutation else ""
+                    "salutation": client.salutation.value if client.salutation else "",
+                    "existing": client.existing,
+                    "CIF_number": client.CIF_number
                 })
             return jsonify({
                 "clients": clients_list,

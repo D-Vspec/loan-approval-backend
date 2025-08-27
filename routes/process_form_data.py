@@ -10,7 +10,6 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             if not json_data or 'data' not in json_data:
                 return jsonify({'error': 'Invalid JSON data'}), 400
             data = json_data['data']
-            
             print("Processing form data:", data)  # Debugging line
             
             client = Client()
@@ -40,6 +39,8 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             client.monthly_income = parse_decimal(data.get('spouseMonthlyIncome'))
             client.type_of_loan = data.get('typeOfLoan', '')
             client.loan_amount = parse_decimal(data.get('loanAmount'))
+            client.existing = data.get('existing', False)
+            client.CIF_number = data.get('CIF_number', None)
             
             print("Client spouse information:", client.spouse_name, client.spouse_birthdate)  # Debugging line
             print("Loan information:", client.type_of_loan, client.loan_amount)  # Debugging line
@@ -219,7 +220,9 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
                 'message': 'Client data processed successfully',
                 'client_id': client.id,
                 'submission_date': json_data.get('submissionDate'),
-                'form_type': json_data.get('formType')
+                'form_type': json_data.get('formType'),
+                'existing': client.existing,
+                'CIF_number': client.CIF_number
             }), 201
         except Exception as e:
             db.session.rollback()
