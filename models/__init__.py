@@ -8,6 +8,7 @@ from .assessment import (
 )
 from .loan_approver import LoanApprover
 from .token_usage import TokenUsage
+from .loan import Loan
 
 
 __all__ = [
@@ -34,6 +35,9 @@ __all__ = [
     'LoanApprover',
 
     # Token usage model
-    'TokenUsage'
+    'TokenUsage',
+    
+    # Loan model
+    'Loan'
 
 ]
