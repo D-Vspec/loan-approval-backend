@@ -2,7 +2,7 @@ from flask import Blueprint
 from models import (
     Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense,
     PrimaryRepaymentSource, OtherRepaymentSource, CashFlowAnalysis, Residency,
-    FamilyAndToiletStatus
+    FamilyAndToiletStatus, Loan
 )
 from db import db
 from routes.get_client_details import get_client_details_route
@@ -44,7 +44,7 @@ client_bp.add_url_rule(
 
 client_bp.add_url_rule(
     '/client/<int:client_id>/verify',
-    view_func=verify_client_route(db, Client),
+    view_func=verify_client_route(db, Client, Loan),
     methods=['PUT', 'POST', 'OPTIONS']
 )
 
