@@ -12,6 +12,7 @@ from routes.verify_client import verify_client_route
 from routes.reject_client import reject_client_route
 from routes.update_client_data import update_client_data_route
 from routes.process_form_data import process_form_data_route
+from routes.get_client_loan import get_client_loan_route
 
 
 client_bp = Blueprint('client', __name__)
@@ -58,6 +59,12 @@ client_bp.add_url_rule(
     '/client/<int:client_id>/update',
     view_func=update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus),
     methods=['PUT', 'PATCH', 'OPTIONS']
+)
+
+client_bp.add_url_rule(
+    '/client/<int:client_id>/loan',
+    view_func=get_client_loan_route(Client, Loan),
+    methods=['GET']
 )
 
 
