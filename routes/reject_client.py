@@ -11,11 +11,6 @@ def reject_client_route(db, Client):
             # Check if client is already rejected
             if client.status == ClientStatusEnum.REJECTED:
                 return jsonify({'error': 'Client is already rejected'}), 400
-            
-            # Check if client is already verified - optionally prevent rejection of verified clients
-            if client.status == ClientStatusEnum.VERIFIED:
-                return jsonify({'error': 'Cannot reject a verified client'}), 400
-            
             # Get optional rejection reason from request body
             data = request.get_json() or {}
             rejection_reason = data.get('reason', '')
