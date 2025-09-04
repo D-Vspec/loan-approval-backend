@@ -18,6 +18,7 @@ def reject_client_route(db, Client):
             # Set status to REJECTED
             client.status = ClientStatusEnum.REJECTED
             client.verified = False  # Keep verified field in sync for backward compatibility
+            client.rejection_reason = rejection_reason  # Store the rejection reason
             db.session.commit()
             
             response_data = {

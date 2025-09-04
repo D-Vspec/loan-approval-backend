@@ -31,6 +31,7 @@ class Client(db.Model):
 
     verified = Column(db.Boolean, default=False)  # Keep for backward compatibility
     status = Column(Enum(ClientStatusEnum), default=ClientStatusEnum.PENDING)
+    rejection_reason = Column(String(500), nullable=True)  # Store rejection reason when client is rejected
 
     addresses = relationship("AddressInformation", cascade="all, delete-orphan")
     beneficiaries = relationship("Beneficiaries", cascade="all, delete-orphan")

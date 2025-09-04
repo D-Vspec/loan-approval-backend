@@ -20,7 +20,8 @@ def check_client_verification_route(Client, FamilyAndToiletStatus):
                 'status': client.status.value,
                 'verified': client.verified,  
                 'is_rejected': client.status == ClientStatusEnum.REJECTED,
-                'message': status_messages.get(client.status, 'Unknown status')
+                'message': status_messages.get(client.status, 'Unknown status'),
+                'rejection_reason': client.rejection_reason if client.status == ClientStatusEnum.REJECTED else None
             }), 200
             
         except Exception as e:
