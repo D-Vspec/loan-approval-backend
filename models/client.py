@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, DECIMAL, Enum
+from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey, DECIMAL, Enum
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from db import db
 from .enums import SalutationEnum, GenderEnum, MaritalStatusEnum, ClientStatusEnum
 
@@ -28,6 +29,7 @@ class Client(db.Model):
     loan_amount = Column(DECIMAL(12, 2))
     existing = Column(db.Boolean, default=False)
     CIF_number = Column(String(100), nullable=True)
+    submission_date = Column(DateTime, default=func.now(), nullable=True)  # Track when form was submitted
 
     verified = Column(db.Boolean, default=False)  # Keep for backward compatibility
     status = Column(Enum(ClientStatusEnum), default=ClientStatusEnum.PENDING)
