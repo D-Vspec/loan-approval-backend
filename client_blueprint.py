@@ -2,7 +2,7 @@ from flask import Blueprint
 from models import (
     Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense,
     PrimaryRepaymentSource, OtherRepaymentSource, CashFlowAnalysis, Residency,
-    FamilyAndToiletStatus, Loan
+    FamilyAndToiletStatus, Loan, CreditAssessmentSummary
 )
 from db import db
 from routes.get_client_details import get_client_details_route
@@ -13,6 +13,8 @@ from routes.reject_client import reject_client_route
 from routes.update_client_data import update_client_data_route
 from routes.process_form_data import process_form_data_route
 from routes.get_client_loan import get_client_loan_route
+from routes.update_credit_details import update_credit_details_route
+from routes.get_credit_details import get_credit_details_route
 
 
 client_bp = Blueprint('client', __name__)
@@ -33,7 +35,7 @@ client_bp.add_url_rule(
 
 client_bp.add_url_rule(
     '/process_form_data',
-    view_func=process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus),
+    view_func=process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus, CreditAssessmentSummary),
     methods=['POST']
 )
 
@@ -64,6 +66,20 @@ client_bp.add_url_rule(
 client_bp.add_url_rule(
     '/client/<int:client_id>/loan',
     view_func=get_client_loan_route(Client, Loan),
+    methods=['GET']
+)
+
+# Update credit details for a client
+client_bp.add_url_rule(
+    '/client/<int:client_id>/credit',
+    view_func=update_credit_details_route(db, Client, CreditAssessmentSummary),
+    methods=['PUT', 'PATCH']
+)
+
+# Get credit details for a client
+client_bp.add_url_rule(
+    '/client/<int:client_id>/credit',
+    view_func=get_credit_details_route(Client, CreditAssessmentSummary),
     methods=['GET']
 )
 

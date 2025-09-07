@@ -3,7 +3,7 @@ from .utils import (map_salutation, map_gender, map_marital_status, parse_date, 
                    map_other_repayment_source, map_primary_repayment_source, map_income_expense_type, map_frequency)
 from models import LengthOfStayEnum, OwnershipTypeEnum, FamilyStatusEnum, ToiletStatusEnum
 
-def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus):
+def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoInsured, Income, Expense, PrimaryRepaymentSource, OtherRepaymentSource, Residency, FamilyAndToiletStatus, CreditAssessmentSummary):
     def process_form_data():
         try:
             json_data = request.get_json()
@@ -47,6 +47,10 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             db.session.add(client)
             print("Client created:", client.id)  # Debugging line
             db.session.flush()
+
+            # Create a blank credit assessment summary row for this client (all other fields NULL)
+            credit_summary = CreditAssessmentSummary(client_id=client.id)
+            db.session.add(credit_summary)
             address = AddressInformation()
             address.client_id = client.id
             address.street = data.get('streetAddress', '')

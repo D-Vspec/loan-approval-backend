@@ -24,7 +24,7 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
             family_toilet_single = family_toilet_statuses[0] if family_toilet_statuses else None
             response_data = {
                 "submissionDate": format_date_to_iso(client.birthdate),
-                "formType": "Client Information Sheet",
+                "clientId": client.id,
                 "data": {
                     "salutation": reverse_map_salutation(client.salutation),
                     "lastName": client.last_name or "",
