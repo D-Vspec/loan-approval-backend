@@ -55,6 +55,7 @@ class Client(db.Model):
     years_in_program = relationship("YearsInProgram", cascade="all, delete-orphan")
     pastdue_ratios = relationship("PastdueRatio", cascade="all, delete-orphan")
     loans = relationship("Loan", back_populates="client", cascade="all, delete-orphan")
+    credit_assessment_summaries = relationship("CreditAssessmentSummary", back_populates="client", cascade="all, delete-orphan")
 
 
 class AddressInformation(db.Model):

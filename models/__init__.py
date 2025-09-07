@@ -9,6 +9,7 @@ from .assessment import (
 from .loan_approver import LoanApprover
 from .token_usage import TokenUsage
 from .loan import Loan
+from .credit_assessment_summary import CreditAssessmentSummary
 
 
 __all__ = [
@@ -38,6 +39,9 @@ __all__ = [
     'TokenUsage',
     
     # Loan model
-    'Loan'
+    'Loan',
+
+    # Credit assessment summary model
+    'CreditAssessmentSummary'
 
 ]
