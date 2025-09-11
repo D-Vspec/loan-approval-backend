@@ -152,3 +152,10 @@ class PastdueRatioEnum(PyEnum):
     TwoPercent = '2_percent'
     OnePercent = '1_percent'
     ZeroPercentNoPastDue = '0_percent_no_past_due'
+
+class BarangayRecordEnum(PyEnum):
+    SpouseOnlyKnown = 'spouse_only_known'
+    BornAndNoRecord = 'born_and_no_record'
+    ReputableFamily = 'reputable_family'
+    RelativeInCouncil = 'relative_in_council'
+    FamilyElected = 'family_elected'

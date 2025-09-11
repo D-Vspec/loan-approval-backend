@@ -3,7 +3,7 @@ from datetime import datetime
 
 def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRecord, PaymentHistory, 
                                  LendingGroups, CenterStatusMembers, MeetingAttendance, 
-                                 ProgramBenefitsReceived, YearsInProgram, PastdueRatio):
+                                 ProgramBenefitsReceived, YearsInProgram, PastdueRatio, BarangayRecord):
     def process_assessment_data():
         try:
             json_data = request.get_json()
@@ -28,7 +28,8 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                 MeetingAttendance.query.filter_by(client_id=client_id).all(),
                 ProgramBenefitsReceived.query.filter_by(client_id=client_id).all(),
                 YearsInProgram.query.filter_by(client_id=client_id).all(),
-                PastdueRatio.query.filter_by(client_id=client_id).all()
+                PastdueRatio.query.filter_by(client_id=client_id).all(),
+                BarangayRecord.query.filter_by(client_id=client_id).all()
             ]
             
             for record_list in existing_records:
@@ -126,6 +127,50 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                 }
                 return mapping.get(benefit_name)
 
+            def map_barangay_record(value):
+                numeric_to_name = {
+                    '1': 'SpouseOnlyKnown',
+                    '2': 'BornAndNoRecord',
+                    '3': 'ReputableFamily',
+                    '4': 'RelativeInCouncil',
+                    '5': 'FamilyElected'
+                }
+                slug_to_name = {
+                    'spouse_only_known': 'SpouseOnlyKnown',
+                    'born_and_no_record': 'BornAndNoRecord',
+                    'reputable_family': 'ReputableFamily',
+                    'relative_in_council': 'RelativeInCouncil',
+                    'family_elected': 'FamilyElected'
+                }
+                s = str(value)
+                if s in numeric_to_name:
+                    return numeric_to_name[s]
+                if s in slug_to_name:
+                    return slug_to_name[s]
+                # Allow direct enum key passthrough if already CamelCase
+                if s in numeric_to_name.values():
+                    return s
+                return 'SpouseOnlyKnown'
+
+            def barangay_record_score(value):
+                numeric_score = {
+                    'SpouseOnlyKnown': 1,
+                    'BornAndNoRecord': 2,
+                    'ReputableFamily': 3,
+                    'RelativeInCouncil': 4,
+                    'FamilyElected': 5
+                }
+                s = str(value)
+                if s.isdigit():
+                    try:
+                        i = int(s)
+                        return i if 1 <= i <= 5 else 0
+                    except Exception:
+                        return 0
+                # map slug/camel to name then score
+                name = map_barangay_record(s)
+                return numeric_score.get(name, 0)
+
             # Create new assessment records
             
             # Time in Program
@@ -200,6 +245,15 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                 pastdue_ratio.score = int(data['pastdueRatio'])
                 db.session.add(pastdue_ratio)
             
+            # Barangay Record
+            if data.get('barangayRecord'):
+                barangay_record = BarangayRecord()
+                barangay_record.client_id = client_id
+                mapped = map_barangay_record(data['barangayRecord'])
+                barangay_record.record_status = mapped
+                barangay_record.score = barangay_record_score(data['barangayRecord'])
+                db.session.add(barangay_record)
+            
             # Commit all changes
             db.session.commit()
             
@@ -207,8 +261,10 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
             total_score = 0
             for field in ['timeInProgram', 'centerCollectionRecord', 'paymentHistory', 
                          'numberOfLendingGroups', 'numberOfCenterMembers', 'attendanceToMeetings',
-                         'yearsInProgram', 'pastdueRatio']:
-                if data.get(field):
+                         'yearsInProgram', 'pastdueRatio', 'barangayRecord']:
+                if field == 'barangayRecord':
+                    total_score += barangay_record_score(data.get('barangayRecord')) if data.get('barangayRecord') else 0
+                elif data.get(field) and str(data[field]).isdigit():
                     total_score += int(data[field])
             
             return jsonify({
@@ -218,15 +274,16 @@ def process_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRec
                 'remarks': data.get('remarks'),
                 'total_score': total_score,
                 'individual_scores': {
-                    'timeInProgram': int(data.get('timeInProgram', 0)),
-                    'centerCollectionRecord': int(data.get('centerCollectionRecord', 0)),
-                    'paymentHistory': int(data.get('paymentHistory', 0)),
-                    'numberOfLendingGroups': int(data.get('numberOfLendingGroups', 0)),
-                    'numberOfCenterMembers': int(data.get('numberOfCenterMembers', 0)),
-                    'attendanceToMeetings': int(data.get('attendanceToMeetings', 0)),
+                    'timeInProgram': int(data.get('timeInProgram', 0)) if str(data.get('timeInProgram', '')).isdigit() else 0,
+                    'centerCollectionRecord': int(data.get('centerCollectionRecord', 0)) if str(data.get('centerCollectionRecord', '')).isdigit() else 0,
+                    'paymentHistory': int(data.get('paymentHistory', 0)) if str(data.get('paymentHistory', '')).isdigit() else 0,
+                    'numberOfLendingGroups': int(data.get('numberOfLendingGroups', 0)) if str(data.get('numberOfLendingGroups', '')).isdigit() else 0,
+                    'numberOfCenterMembers': int(data.get('numberOfCenterMembers', 0)) if str(data.get('numberOfCenterMembers', '')).isdigit() else 0,
+                    'attendanceToMeetings': int(data.get('attendanceToMeetings', 0)) if str(data.get('attendanceToMeetings', '')).isdigit() else 0,
                     'programBenefitsReceived': data.get('programBenefitsReceived', []),
-                    'yearsInProgram': int(data.get('yearsInProgram', 0)),
-                    'pastdueRatio': int(data.get('pastdueRatio', 0))
+                    'yearsInProgram': int(data.get('yearsInProgram', 0)) if str(data.get('yearsInProgram', '')).isdigit() else 0,
+                    'pastdueRatio': int(data.get('pastdueRatio', 0)) if str(data.get('pastdueRatio', '')).isdigit() else 0,
+                    'barangayRecord': barangay_record_score(data.get('barangayRecord')) if data.get('barangayRecord') else 0
                 }
             }), 201
             

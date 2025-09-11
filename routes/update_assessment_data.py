@@ -3,7 +3,7 @@ from datetime import datetime
 
 def update_assessment_data_route(db, Client, TimeInProgram, CenterCollectionRecord, PaymentHistory, 
                                  LendingGroups, CenterStatusMembers, MeetingAttendance, 
-                                 ProgramBenefitsReceived, YearsInProgram, PastdueRatio):
+                                 ProgramBenefitsReceived, YearsInProgram, PastdueRatio, BarangayRecord):
     def update_assessment_data(client_id):
         try:
             json_data = request.get_json()
@@ -108,6 +108,18 @@ def update_assessment_data_route(db, Client, TimeInProgram, CenterCollectionReco
                 }
                 return mapping.get(benefit_name)
 
+            def map_barangay_record(value):
+                mapping = {
+                    '1': 'SpouseOnlyKnown',
+                    '2': 'BornAndNoRecord',
+                    '3': 'ReputableFamily',
+                    '4': 'RelativeInCouncil',
+                    '5': 'FamilyElected'
+                }
+                if str(value) in mapping.values():
+                    return value
+                return mapping.get(str(value), 'SpouseOnlyKnown')
+
             # Update or create assessment records
             
             # Time in Program
@@ -191,6 +203,18 @@ def update_assessment_data_route(db, Client, TimeInProgram, CenterCollectionReco
                 pastdue_ratio.ratio_category = map_pastdue_ratio(data['pastdueRatio'])
                 pastdue_ratio.score = int(data['pastdueRatio'])
             
+            # Barangay Record
+            if data.get('barangayRecord'):
+                barangay_record = BarangayRecord.query.filter_by(client_id=client_id).first()
+                if not barangay_record:
+                    barangay_record = BarangayRecord(client_id=client_id)
+                    db.session.add(barangay_record)
+                barangay_record.record_status = map_barangay_record(data['barangayRecord'])
+                if str(data['barangayRecord']).isdigit():
+                    barangay_record.score = int(data['barangayRecord'])
+                else:
+                    barangay_record.score = 0
+
             # Commit all changes
             db.session.commit()
             
@@ -198,8 +222,8 @@ def update_assessment_data_route(db, Client, TimeInProgram, CenterCollectionReco
             total_score = 0
             for field in ['timeInProgram', 'centerCollectionRecord', 'paymentHistory', 
                          'numberOfLendingGroups', 'numberOfCenterMembers', 'attendanceToMeetings',
-                         'yearsInProgram', 'pastdueRatio']:
-                if data.get(field):
+                         'yearsInProgram', 'pastdueRatio', 'barangayRecord']:
+                if data.get(field) and str(data[field]).isdigit():
                     total_score += int(data[field])
             
             return jsonify({
@@ -215,7 +239,8 @@ def update_assessment_data_route(db, Client, TimeInProgram, CenterCollectionReco
                     'attendanceToMeetings': int(data.get('attendanceToMeetings', 0)),
                     'programBenefitsReceived': data.get('programBenefitsReceived', []),
                     'yearsInProgram': int(data.get('yearsInProgram', 0)),
-                    'pastdueRatio': int(data.get('pastdueRatio', 0))
+                    'pastdueRatio': int(data.get('pastdueRatio', 0)) if str(data.get('pastdueRatio', '')).isdigit() else 0,
+                    'barangayRecord': int(data.get('barangayRecord', 0)) if str(data.get('barangayRecord', '')).isdigit() else 0
                 }
             }), 200
             

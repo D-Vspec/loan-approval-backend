@@ -4,7 +4,7 @@ from .financial import Income, Expense, PrimaryRepaymentSource, OtherRepaymentSo
 from .assessment import (
     Residency, FamilyAndToiletStatus, TimeInProgram, CenterCollectionRecord,
     PaymentHistory, LendingGroups, CenterStatusMembers, MeetingAttendance,
-    ProgramBenefitsReceived, YearsInProgram, PastdueRatio
+    ProgramBenefitsReceived, YearsInProgram, PastdueRatio, BarangayRecord
 )
 from .loan_approver import LoanApprover
 from .token_usage import TokenUsage
@@ -19,7 +19,7 @@ __all__ = [
     'CashFlowCategoryEnum', 'LengthOfStayEnum', 'OwnershipTypeEnum', 'FamilyStatusEnum',
     'ToiletStatusEnum', 'TimeInProgramEnum', 'CollectionRecordEnum', 'PaymentHistoryEnum',
     'LendingGroupsEnum', 'CenterMembersEnum', 'MeetingAttendanceEnum', 'ProgramBenefitsEnum',
-    'YearsInProgramEnum', 'PastdueRatioEnum',
+    'YearsInProgramEnum', 'PastdueRatioEnum', 'BarangayRecordEnum',
     
     # Client models
     'Client', 'AddressInformation', 'Beneficiaries', 'CoInsured',
@@ -30,7 +30,7 @@ __all__ = [
     # Assessment models
     'Residency', 'FamilyAndToiletStatus', 'TimeInProgram', 'CenterCollectionRecord',
     'PaymentHistory', 'LendingGroups', 'CenterStatusMembers', 'MeetingAttendance',
-    'ProgramBenefitsReceived', 'YearsInProgram', 'PastdueRatio',
+    'ProgramBenefitsReceived', 'YearsInProgram', 'PastdueRatio', 'BarangayRecord',
     
     # Loan Approver models
     'LoanApprover',

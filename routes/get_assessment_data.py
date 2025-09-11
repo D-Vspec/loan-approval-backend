@@ -2,7 +2,7 @@ from flask import jsonify
 
 def get_assessment_data_route(Client, TimeInProgram, CenterCollectionRecord, PaymentHistory,
                               LendingGroups, CenterStatusMembers, MeetingAttendance,
-                              ProgramBenefitsReceived, YearsInProgram, PastdueRatio):
+                              ProgramBenefitsReceived, YearsInProgram, PastdueRatio, BarangayRecord):
     def get_assessment_data(client_id):
         try:
             client = Client.query.get(client_id)
@@ -18,6 +18,7 @@ def get_assessment_data_route(Client, TimeInProgram, CenterCollectionRecord, Pay
             program_benefits = ProgramBenefitsReceived.query.filter_by(client_id=client_id).all()
             years_in_program = YearsInProgram.query.filter_by(client_id=client_id).all()
             pastdue_ratios = PastdueRatio.query.filter_by(client_id=client_id).all()
+            barangay_records = BarangayRecord.query.filter_by(client_id=client_id).all()
 
             response_data = {
                 "recordAssessment": {
@@ -52,6 +53,14 @@ def get_assessment_data_route(Client, TimeInProgram, CenterCollectionRecord, Pay
                             "score": group.score or 0
                         }
                         for group in lending_groups
+                    ],
+                    "barangayRecords": [
+                        {
+                            "recordStatus": record.record_status.value if record.record_status else "",
+                            "customDescription": record.custom_description or "",
+                            "score": record.score or 0
+                        }
+                        for record in barangay_records
                     ]
                 },
                 "centerStatusAssessment": {
@@ -92,6 +101,14 @@ def get_assessment_data_route(Client, TimeInProgram, CenterCollectionRecord, Pay
                             "score": ratio.score or 0
                         }
                         for ratio in pastdue_ratios
+                    ],
+                    "barangayRecords": [
+                        {
+                            "recordStatus": record.record_status.value if record.record_status else "",
+                            "customDescription": record.custom_description or "",
+                            "score": record.score or 0
+                        }
+                        for record in barangay_records
                     ]
                 }
             }

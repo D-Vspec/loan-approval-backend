@@ -4,7 +4,7 @@ from .enums import (
     LengthOfStayEnum, OwnershipTypeEnum, FamilyStatusEnum, ToiletStatusEnum,
     TimeInProgramEnum, CollectionRecordEnum, PaymentHistoryEnum, LendingGroupsEnum,
     CenterMembersEnum, MeetingAttendanceEnum, ProgramBenefitsEnum, 
-    YearsInProgramEnum, PastdueRatioEnum
+    YearsInProgramEnum, PastdueRatioEnum, BarangayRecordEnum
 )
 
 class Residency(db.Model):
@@ -94,5 +94,13 @@ class PastdueRatio(db.Model):
     id = Column(Integer, primary_key=True)
     client_id = Column(Integer, ForeignKey('client.id', ondelete='CASCADE'))
     ratio_category = Column(Enum(PastdueRatioEnum), nullable=False)
+    custom_description = Column(String(255))
+    score = Column(Integer, default=0)
+
+class BarangayRecord(db.Model):
+    __tablename__ = 'barangay_record'
+    id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey('client.id', ondelete='CASCADE'))
+    record_status = Column(Enum(BarangayRecordEnum), nullable=False)
     custom_description = Column(String(255))
     score = Column(Integer, default=0)
