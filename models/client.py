@@ -28,6 +28,8 @@ class Client(db.Model):
     existing = Column(db.Boolean, default=False)
     CIF_number = Column(String(100), nullable=True)
     submission_date = Column(DateTime, default=func.now(), nullable=True)  # Track when form was submitted
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     verified = Column(db.Boolean, default=False)  # Keep for backward compatibility
     status = Column(Enum(ClientStatusEnum), default=ClientStatusEnum.PENDING)

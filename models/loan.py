@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DECIMAL
+from sqlalchemy import Column, Integer, String, ForeignKey, DECIMAL, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from db import db
 
 class Loan(db.Model):
@@ -11,6 +12,8 @@ class Loan(db.Model):
     loan_amount = Column(DECIMAL(12, 2))
     payment_term = Column(Integer)  # Payment term in months or as specified
     interest_rate = Column(DECIMAL(5, 2))  # Interest rate as percentage (e.g., 5.25 for 5.25%)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationship to Client
     client = relationship("Client", back_populates="loans")

@@ -13,6 +13,7 @@ class Applicantion(db.Model):
     loan_id = Column(Integer, ForeignKey('loan.loan_id', ondelete='CASCADE'), nullable=False)
 
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
     client = relationship("Client", back_populates="applicantions")
