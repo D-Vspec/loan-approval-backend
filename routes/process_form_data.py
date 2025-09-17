@@ -47,14 +47,12 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
 
             # Create a new Loan object
             from models.loan import Loan
-            new_loan = Loan(
-                client_id=client.id,
-                type_of_loan=data.get('typeOfLoan', ''),
-                loan_amount=parse_decimal(data.get('loanAmount'))
-            )
+            new_loan = Loan()
+            new_loan.client_id = client.id
+            new_loan.type_of_loan = data.get('typeOfLoan', '')
+            new_loan.loan_amount = parse_decimal(data.get('loanAmount'))
             db.session.add(new_loan)
 
-            # Create a blank credit assessment summary row for this client (all other fields NULL)
             credit_summary = CreditAssessmentSummary(client_id=client.id)
             db.session.add(credit_summary)
             address = AddressInformation()
@@ -65,7 +63,7 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             address.province = data.get('province', '')
             address.region = data.get('region', '')
             db.session.add(address)
-            print("Address added for client:", client.id)  # Debugging line
+            print("Address added for client:", client.id)  
             beneficiaries_data = data.get('beneficiaries', [])
             for beneficiary_data in beneficiaries_data:
                 beneficiary = Beneficiaries()
