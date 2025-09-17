@@ -7,6 +7,8 @@ class Loan(db.Model):
     
     loan_id = Column(Integer, primary_key=True)
     client_id = Column(Integer, ForeignKey('client.id', ondelete='CASCADE'), nullable=False)
+    type_of_loan = Column(String(150))
+    loan_amount = Column(DECIMAL(12, 2))
     payment_term = Column(Integer)  # Payment term in months or as specified
     interest_rate = Column(DECIMAL(5, 2))  # Interest rate as percentage (e.g., 5.25 for 5.25%)
     

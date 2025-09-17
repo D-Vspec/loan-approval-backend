@@ -70,6 +70,14 @@ def update_client_data_route(db, Client, AddressInformation, Beneficiaries, CoIn
                     client.work = data.get('spouseWork') or ''
                 if 'spouseMonthlyIncome' in data:
                     client.monthly_income = parse_decimal(data.get('spouseMonthlyIncome'))
+                client.existing = data.get('existing')
+                client.CIF_number = data.get('CIF_number')
+
+                # Update loan information
+                loan = client.loans[0] if client.loans else None
+                if loan:
+                    loan.type_of_loan = data.get('typeOfLoan') or ''
+                    loan.loan_amount = parse_decimal(data.get('loanAmount'))
 
             if 'typeOfLoan' in data:
                 client.type_of_loan = data.get('typeOfLoan') or ''

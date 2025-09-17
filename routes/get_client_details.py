@@ -19,6 +19,8 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
             cash_flow_analyses = CashFlowAnalysis.query.filter_by(client_id=client_id).all()
             residencies = Residency.query.filter_by(client_id=client_id).all()
             family_toilet_statuses = FamilyAndToiletStatus.query.filter_by(client_id=client_id).all()
+            # Assuming a client has one loan for simplicity, or you need logic to determine which loan to show.
+            loan = client.loans[0] if client.loans else None
             # Pick first (latest inserted) entries for simple field mapping
             residency_single = residencies[0] if residencies else None
             family_toilet_single = family_toilet_statuses[0] if family_toilet_statuses else None
@@ -44,8 +46,8 @@ def get_client_details_route(Client, AddressInformation, Beneficiaries, CoInsure
                     "spouseBirthDate": format_date_to_iso(client.spouse_birthdate),
                     "spouseWork": client.work or "",
                     "spouseMonthlyIncome": str(client.monthly_income) if client.monthly_income else "",
-                    "typeOfLoan": client.type_of_loan or "",
-                    "loanAmount": str(client.loan_amount) if client.loan_amount else "",
+                    "typeOfLoan": loan.type_of_loan if loan else "",
+                    "loanAmount": str(loan.loan_amount) if loan and loan.loan_amount is not None else "",
                     "status": client.status.value if client.status else "",
                     # Added single-value residency & family/toilet fields
                     "lengthOfStay": residency_single.length_of_stay.value if residency_single and residency_single.length_of_stay else "",

@@ -25,8 +25,6 @@ class Client(db.Model):
     spouse_birthdate = Column(Date)
     work = Column(String(150))
     monthly_income = Column(DECIMAL(12, 2))
-    type_of_loan = Column(String(150))
-    loan_amount = Column(DECIMAL(12, 2))
     existing = Column(db.Boolean, default=False)
     CIF_number = Column(String(100), nullable=True)
     submission_date = Column(DateTime, default=func.now(), nullable=True)  # Track when form was submitted

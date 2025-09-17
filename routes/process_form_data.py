@@ -37,16 +37,22 @@ def process_form_data_route(db, Client, AddressInformation, Beneficiaries, CoIns
             client.spouse_birthdate = parse_date(data.get('spouseBirthDate'))
             client.work = data.get('spouseWork', '')
             client.monthly_income = parse_decimal(data.get('spouseMonthlyIncome'))
-            client.type_of_loan = data.get('typeOfLoan', '')
-            client.loan_amount = parse_decimal(data.get('loanAmount'))
             client.existing = data.get('existing', False)
             client.CIF_number = data.get('CIF_number', None)
             
             print("Client spouse information:", client.spouse_name, client.spouse_birthdate)  # Debugging line
-            print("Loan information:", client.type_of_loan, client.loan_amount)  # Debugging line
             db.session.add(client)
             print("Client created:", client.id)  # Debugging line
             db.session.flush()
+
+            # Create a new Loan object
+            from models.loan import Loan
+            new_loan = Loan(
+                client_id=client.id,
+                type_of_loan=data.get('typeOfLoan', ''),
+                loan_amount=parse_decimal(data.get('loanAmount'))
+            )
+            db.session.add(new_loan)
 
             # Create a blank credit assessment summary row for this client (all other fields NULL)
             credit_summary = CreditAssessmentSummary(client_id=client.id)
