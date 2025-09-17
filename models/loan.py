@@ -12,3 +12,6 @@ class Loan(db.Model):
     
     # Relationship to Client
     client = relationship("Client", back_populates="loans")
+
+    # Relationship to Applicantion linking table
+    applicantions = relationship("Applicantion", back_populates="loan", cascade="all, delete-orphan")

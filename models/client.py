@@ -57,6 +57,9 @@ class Client(db.Model):
     barangay_records = relationship("BarangayRecord", cascade="all, delete-orphan")
     loans = relationship("Loan", back_populates="client", cascade="all, delete-orphan")
     credit_assessment_summaries = relationship("CreditAssessmentSummary", back_populates="client", cascade="all, delete-orphan")
+    
+    # Link to applicantion records (client-loan mapping)
+    applicantions = relationship("Applicantion", back_populates="client", cascade="all, delete-orphan")
 
 
 class AddressInformation(db.Model):
